@@ -3,6 +3,7 @@ import pathlib
 import json
 import dotenv
 from fastapi import FastAPI, APIRouter, Depends
+from fastapi.middleware.cors import CORSMiddleware  # Add this import
 
 dotenv.load_dotenv()
 
@@ -77,6 +78,26 @@ def get_firebase_config() -> dict | None:
 def create_app() -> FastAPI:
     """Create the app. This is called by uvicorn with the factory option to construct the app object."""
     app = FastAPI()
+
+    # --- ADD THIS CORS CONFIGURATION BLOCK ---
+    origins = [
+        "http://localhost:5173",  # Your local frontend development server
+        "https://www.loufranktv.com", # Your primary live domain
+        "https://loufranktv.com",     # Your root live domain (if you use it)
+        "https://loufranktv-frontend.netlify.app", # Your Netlify temporary domain
+        # Add any other Netlify preview/branch domains if needed, e.g.:
+        # "https://your-preview-xxxx.netlify.app",
+    ]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],  # Allows all HTTP methods (GET, POST, PUT, DELETE, etc.)
+        allow_headers=["*"],  # Allows all headers
+    )
+    # --- END CORS CONFIGURATION BLOCK ---
+
     app.include_router(import_api_routers())
 
     for route in app.routes:
