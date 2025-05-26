@@ -4,30 +4,29 @@ import json
 import dotenv
 from fastapi import FastAPI, APIRouter, Depends
 from fastapi.middleware.cors import CORSMiddleware  # Add this import
+from databutton_app.mw.auth_mw import AuthConfig, get_authorized_user
 
 dotenv.load_dotenv()
 
-from databutton_app.mw.auth_mw import AuthConfig, get_authorized_user
 
 
-def get_router_config() -> dict:
-    try:
-        # Note: This file is not available to the agent
-        cfg = json.loads(open("routers.json").read())
-    except:
-        return False
-    return cfg
+
+# def get_router_config() -> dict:
+#     try:
+#         # Note: This file is not available to the agent
+#         cfg = json.loads(open("routers.json").read())
+#     except:
+#         return False
+#     return cfg
 
 
-def is_auth_disabled(router_config: dict, name: str) -> bool:
-    return router_config["routers"][name]["disableAuth"]
+# def is_auth_disabled(router_config: dict, name: str) -> bool:
+#     return router_config["routers"][name]["disableAuth"]
 
 
 def import_api_routers() -> APIRouter:
     """Create top level router including all user defined endpoints."""
     routes = APIRouter(prefix="/routes")
-
-    router_config = get_router_config()
 
     src_path = pathlib.Path(__file__).parent
 
@@ -49,30 +48,17 @@ def import_api_routers() -> APIRouter:
             if isinstance(api_router, APIRouter):
                 routes.include_router(
                     api_router,
-                    dependencies=(
-                        []
-                        if is_auth_disabled(router_config, name)
-                        else [Depends(get_authorized_user)]
-                    ),
+                    # Authentication dependencies removed as requested
                 )
+            else:
+                print(f"API '{name}' does not have a valid APIRouter object.")
         except Exception as e:
-            print(e)
+            print(f"Error importing API {name}: {e}")
             continue
 
     print(routes.routes)
 
     return routes
-
-
-def get_firebase_config() -> dict | None:
-    extensions = os.environ.get("DATABUTTON_EXTENSIONS", "[]")
-    extensions = json.loads(extensions)
-
-    for ext in extensions:
-        if ext["name"] == "firebase-auth":
-            return ext["config"]["firebaseConfig"]
-
-    return None
 
 
 def create_app() -> FastAPI:
@@ -105,20 +91,8 @@ def create_app() -> FastAPI:
             for method in route.methods:
                 print(f"{method} {route.path}")
 
-    firebase_config = get_firebase_config()
-
-    if firebase_config is None:
-        print("No firebase config found")
-        app.state.auth_config = None
-    else:
-        print("Firebase config found")
-        auth_config = {
-            "jwks_url": "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com",
-            "audience": firebase_config["projectId"],
-            "header": "authorization",
-        }
-
-        app.state.auth_config = AuthConfig(**auth_config)
+    # Removed DataButton Firebase integration and related auth config logic
+    app.state.auth_config = None
 
     return app
 

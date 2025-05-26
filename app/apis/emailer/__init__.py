@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr, Field
 import resend
-import databutton as db
+import os
+os.environ["RESEND_API_KEY"] = "re_c6L4qEvS_A2ikt5RDrxUAdEDQ1iFbpsRb"
+
 from typing import Optional, List, Dict, Any
 import json
 
@@ -49,7 +51,7 @@ def send_contact_form(request: ContactFormRequest):
     """
     try:
         # Initialize Resend with API key
-        api_key = db.secrets.get("RESEND_API_KEY")
+        api_key = os.environ.get("RESEND_API_KEY")
         if not api_key:
             return EmailResponse(
                 success=False,
@@ -136,7 +138,7 @@ def send_welcome_email(request: WelcomeEmailRequest):
     """
     try:
         # Initialize Resend with API key
-        api_key = db.secrets.get("RESEND_API_KEY")
+        api_key = os.environ.get("RESEND_API_KEY")
         if not api_key:
             return EmailResponse(
                 success=False,
@@ -260,16 +262,14 @@ def send_trial_request(request: TrialRequestRequest):
     Send a trial request email to the support team.
     """
     try:
-        # Initialize Resend with API key
-        api_key = db.secrets.get("RESEND_API_KEY")
+        # Initialize Resend with API key from environment variable
+        api_key = os.environ.get("RESEND_API_KEY")
         if not api_key:
             return EmailResponse(
                 success=False,
                 message="Email service not configured. Please contact us directly.",
                 email_id=None
             )
-        
-        # Set Resend API key
         resend.api_key = api_key
         
         # Prepare email content with premium styling and logo
@@ -298,7 +298,7 @@ def send_trial_request(request: TrialRequestRequest):
                         <h2>New <span class="highlight">FREE 36-Hour Trial</span> Request</h2>
                         <div class="divider"></div>
                         <p><strong>From:</strong> {request.name} ({request.email})</p>
-                        {f'<p><strong>Phone:</strong> {request.phone}</p>' if request.phone else ''}
+                        {f'<p><strong>Phone:</strong> {request.phone}</p>' if hasattr(request, 'phone') and request.phone else ''}
                         <p><strong>Message:</strong></p>
                         <p>I would like to try the FREE 36-hour trial. Please provide me with information on how to get started.</p>
                     </div>
@@ -314,7 +314,7 @@ def send_trial_request(request: TrialRequestRequest):
         # Send email
         params = {
             "from": "LouFrank TV Trial Requests <trials@loufranktv.com>",
-            "to": ["loufranktv@gmail.com"],  # Using owner's email for testing, replace with support email after domain verification
+            "to": ["loufranktv@gmail.com"],
             "subject": "FREE 36-Hour Trial Request",
             "html": html_content,
             "reply_to": request.email
@@ -343,7 +343,7 @@ def send_generic_email(request: GenericEmailRequest):
     """
     try:
         # Initialize Resend with API key
-        api_key = db.secrets.get("RESEND_API_KEY")
+        api_key = os.environ.get("RESEND_API_KEY")
         if not api_key:
             return EmailResponse(
                 success=False,
