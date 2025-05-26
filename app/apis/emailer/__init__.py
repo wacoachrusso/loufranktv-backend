@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr, Field
 import resend
 import os
+from datetime import datetime
 os.environ["RESEND_API_KEY"] = "re_c6L4qEvS_A2ikt5RDrxUAdEDQ1iFbpsRb"
 
 from typing import Optional, List, Dict, Any
@@ -271,16 +272,60 @@ def send_trial_request(request: TrialRequestRequest):
                 email_id=None
             )
         resend.api_key = api_key
-        # Compose a simple HTML body with the new logo and trial request info
+        # Compose a robust HTML body for the trial request email
         html_body = f"""
-        <html>
-        <body>
-            <p>Hello Owner,</p>
-            <p>Someone requested a free trial!</p>
-            <img src=\"https://www.loufranktv.com/logo-loufrank-crew.png\" alt=\"Lou Frank TV Logo\" style=\"width:200px; height:auto;\" />
-            <p>Name: {request.name}</p>
-            <p>Email: {request.email}</p>
-            {f'<p>Phone: {request.phone}</p>' if request.phone else ''}
+        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml">
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <title>New Trial Request for Lou Frank TV</title>
+            <style type="text/css">
+                body, table, td, a {{ -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }}
+                table, td {{ mso-table-lspace: 0pt; mso-table-rspace: 0pt; }}
+                img {{ -ms-interpolation-mode: bicubic; }}
+                body {{ margin: 0; padding: 0; }}
+                table {{ border-collapse: collapse !important; }}
+                .ExternalClass {{ width: 100%; }}
+                .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {{ line-height: 100%; }}
+                .apple-link a {{ color: inherit !important; text-decoration: none !important; }}
+                .btn-link a {{ color: #ffffff !important; text-decoration: none !important; }}
+                img {{ border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; display: block; }}
+            </style>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4;">
+                <tr>
+                    <td align="center" style="padding: 20px 0;">
+                        <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <tr>
+                                <td align="center" style="padding: 20px 0;">
+                                    <a href="https://www.loufranktv.com" target="_blank" style="text-decoration: none;">
+                                        <img src="https://www.loufranktv.com/logo-loufrank-crew.png" alt="Lou Frank TV Logo" style="display: block; width:200px; max-width:100%; height:auto; margin: 0 auto;" />
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0 30px 20px 30px;">
+                                    <p style="font-size: 16px; color: #333333;">Hello Owner,</p>
+                                    <p style="font-size: 16px; color: #333333;">Someone requested a free trial:</p>
+                                    <ul style="font-size: 16px; color: #333333; list-style-type: none; padding: 0;">
+                                        <li style="margin-bottom: 10px;"><strong>Name:</strong> {request.name}</li>
+                                        <li style="margin-bottom: 10px;"><strong>Email:</strong> {request.email}</li>
+                                        {f'<li style="margin-bottom: 10px;"><strong>Phone:</strong> {request.phone}</li>' if request.phone else ''}
+                                    </ul>
+                                    <p style="font-size: 16px; color: #333333;">Please follow up as soon as possible.</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center" style="padding: 20px; font-size: 12px; color: #999999; background-color: #eeeeee;">
+                                    <p>&copy; {datetime.now().year} Lou Frank TV. All rights reserved.</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </body>
         </html>
         """
