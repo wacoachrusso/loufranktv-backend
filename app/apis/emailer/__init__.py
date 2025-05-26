@@ -271,57 +271,27 @@ def send_trial_request(request: TrialRequestRequest):
                 email_id=None
             )
         resend.api_key = api_key
-        
-        # Prepare email content with premium styling and logo
-        html_content = f"""
+        # Compose a simple HTML body with the new logo and trial request info
+        html_body = f"""
         <html>
-            <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <style>
-                    body {{ font-family: 'Arial', sans-serif; line-height: 1.6; color: #e2e8f0; margin: 0; padding: 0; background-color: #0f0f0f; }}
-                    .container {{ max-width: 600px; margin: 0 auto; background-color: #0a0a0a; border-radius: 8px; overflow: hidden; }}
-                    .header {{ background: linear-gradient(135deg, #000000, #1a1a1a); padding: 20px; text-align: center; border-bottom: 1px solid #333; }}
-                    .logo {{ height: 60px; width: auto; }}
-                    .content {{ padding: 30px; }}
-                    .footer {{ background-color: #0a0a0a; padding: 20px; text-align: center; font-size: 12px; color: #6c7280; border-top: 1px solid #333; }}
-                    h1, h2 {{ color: #ffffff; margin-top: 0; }}
-                    .highlight {{ color: #17d1e0; }}
-                    .divider {{ height: 1px; background: linear-gradient(to right, transparent, #333, transparent); margin: 20px 0; }}
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <img class="logo" src="https://loufranktv.com/public/901661ac-f28e-4815-8069-61ae5363a100/logo-color.png" alt="LouFrank TV Logo">
-                    </div>
-                    <div class="content">
-                        <h2>New <span class="highlight">FREE 36-Hour Trial</span> Request</h2>
-                        <div class="divider"></div>
-                        <p><strong>From:</strong> {request.name} ({request.email})</p>
-                        {f'<p><strong>Phone:</strong> {request.phone}</p>' if hasattr(request, 'phone') and request.phone else ''}
-                        <p><strong>Message:</strong></p>
-                        <p>I would like to try the FREE 36-hour trial. Please provide me with information on how to get started.</p>
-                    </div>
-                    <div class="footer">
-                        <p>© {2025} LouFrank TV. All rights reserved.</p>
-                        <p>Premium IPTV Service | 16,000+ Channels | Global Coverage</p>
-                    </div>
-                </div>
-            </body>
+        <body>
+            <p>Hello Owner,</p>
+            <p>Someone requested a free trial!</p>
+            <img src=\"https://www.loufranktv.com/logo-loufrank-crew.png\" alt=\"Lou Frank TV Logo\" style=\"width:200px; height:auto;\" />
+            <p>Name: {request.name}</p>
+            <p>Email: {request.email}</p>
+            {f'<p>Phone: {request.phone}</p>' if request.phone else ''}
+        </body>
         </html>
         """
-        
-        # Send email
         params = {
             "from": "LouFrank TV Trial Requests <trials@loufranktv.com>",
             "to": ["loufranktv@gmail.com"],
-            "subject": "FREE 36-Hour Trial Request",
-            "html": html_content,
+            "subject": "New Trial Request!",
+            "html": html_body,
             "reply_to": request.email
         }
-        
         response = resend.Emails.send(params)
-        
         return EmailResponse(
             success=True,
             message="Trial request submitted successfully",
