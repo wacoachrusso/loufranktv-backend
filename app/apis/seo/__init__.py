@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Response
-from typing import Dict, Any, List, Optional
+from datetime import date
 
 router = APIRouter()
 
@@ -19,7 +19,7 @@ Disallow: /api/
 def get_sitemap_xml():
     """Generate and serve sitemap.xml file"""
     base_url = "https://loufranktv.com"
-    today = "2025-03-10"
+    today = date.today().isoformat()
     
     # Define all site pages with their SEO properties
     pages = [

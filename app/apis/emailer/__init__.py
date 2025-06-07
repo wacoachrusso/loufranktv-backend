@@ -1,12 +1,10 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, EmailStr, Field
-import resend
+from fastapi import APIRouter
+from pydantic import BaseModel, EmailStr
 import os
 from datetime import datetime
-os.environ["RESEND_API_KEY"] = "re_c6L4qEvS_A2ikt5RDrxUAdEDQ1iFbpsRb"
+import resend
 
-from typing import Optional, List, Dict, Any
-import json
+from typing import Optional, List
 
 # Create router
 router = APIRouter()
@@ -99,7 +97,7 @@ def send_contact_form(request: ContactFormRequest):
                         <p>{request.message}</p>
                     </div>
                     <div class="footer">
-                        <p>© {2025} LouFrank TV. All rights reserved.</p>
+                        <p>© {datetime.now().year} LouFrank TV. All rights reserved.</p>
                         <p>Premium IPTV Service | 16,000+ Channels | Global Coverage</p>
                     </div>
                 </div>
@@ -201,7 +199,7 @@ def send_welcome_email(request: WelcomeEmailRequest):
                         <p>The LouFrank TV Team</p>
                     </div>
                     <div class="footer">
-                        <p>© {2025} LouFrank TV. All rights reserved.</p>
+                        <p>© {datetime.now().year} LouFrank TV. All rights reserved.</p>
                         <p>Premium IPTV Service | 16,000+ Channels | Global Coverage</p>
                     </div>
                 </div>
@@ -399,7 +397,7 @@ def send_generic_email(request: GenericEmailRequest):
                             {request.html_content}
                         </div>
                         <div class="footer">
-                            <p>© {2025} LouFrank TV. All rights reserved.</p>
+                            <p>© {datetime.now().year} LouFrank TV. All rights reserved.</p>
                             <p>Premium IPTV Service | 16,000+ Channels | Global Coverage</p>
                         </div>
                     </div>

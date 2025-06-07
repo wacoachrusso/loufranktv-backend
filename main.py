@@ -1,10 +1,7 @@
-import os
 import pathlib
-import json
 import dotenv
-from fastapi import FastAPI, APIRouter, Depends
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware  # Add this import
-from databutton_app.mw.auth_mw import AuthConfig, get_authorized_user
 
 dotenv.load_dotenv()
 
